@@ -1,0 +1,119 @@
+services:
+  backend:
+    build:
+      context: ../..
+      dockerfile: docker/app/Dockerfile.backend
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.10-slim}
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-https://pypi.org/simple}
+        PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
+    container_name: xiliserverswitchmanagesystem-backend
+    restart: unless-stopped
+    env_file:
+      - ../../${APP_ENV:-dev}.backend.env
+    environment:
+      # Read-only feed for the wstunnel client (loopback port map).
+      TUNNEL_SECRET: ${TUNNEL_SECRET:-}
+      TUNNEL_LOCAL_PORT_BASE: ${TUNNEL_LOCAL_PORT_BASE:-18100}
+    volumes:
+      # SQLite lives in a Docker volume: WAL and file locking are unreliable
+      # on Windows bind mounts. Back it up with `docker run --rm -v ...`.
+      - backend_data:/app/data
+      - ../logs:/app/logs
+      - ../runtime:/app/runtime
+    expose:
+      - "5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/health', timeout=3)"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  gateway:
+    build:
+      context: ../..
+      dockerfile: docker/app/Dockerfile.frontend
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:20-slim}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:1.27-alpine}
+        NPM_REGISTRY: ${NPM_REGISTRY:-https://registry.npmjs.org}
+    container_name: xiliserverswitchmanagesystem-gateway
+    restart: unless-stopped
+    ports:
+      # 127.0.0.1 = tunnel only; 0.0.0.0 = also reachable from the LAN.
+      - "${GATEWAY_BIND:-127.0.0.1}:${GATEWAY_PORT:-8080}:80"
+    volumes:
+      - ../runtime/nginx:/etc/nginx/dynamic
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/health >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # WebSocket tunnel (wstunnel). The single frp/https entry still points at the
+  # gateway; requests under /<TUNNEL_SECRET>/... are upgraded here and carried to
+  # this server, which can then reach any LAN host:port on behalf of the client.
+  # No extra public port is opened.
+  tunnel:
+    image: ${WSTUNNEL_IMAGE:-ghcr.io/erebe/wstunnel:v11.1.0}
+    container_name: xiliserverswitchmanagesystem-tunnel
+    restart: unless-stopped
+    entrypoint: ["/home/app/wstunnel"]
+    command:
+      - server
+      - ws://0.0.0.0:8080
+      # Acts as the client secret: clients must send this exact path prefix.
+      - --restrict-http-upgrade-path-prefix
+      - ${TUNNEL_SECRET:?set TUNNEL_SECRET (32 lowercase hex chars) in .env}
+      - --log-lvl
+      - ${TUNNEL_LOG_LEVEL:-INFO}
+    expose:
+      - "8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Optional demo services. Enable with COMPOSE_PROFILES=demo.
+  portainer:
+    profiles: ["demo"]
+    image: portainer/portainer-ce:latest
+    container_name: xili-portainer
+    restart: unless-stopped
+    # Path mode: the gateway strips /p/portainer before proxying.
+    command: ["--base-url", "/p/portainer"]
+    volumes:
+      - //var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    expose:
+      - "9000"
+
+  filebrowser:
+    profiles: ["demo"]
+    image: filebrowser/filebrowser:latest
+    container_name: xili-filebrowser
+    restart: unless-stopped
+    # Path mode: File Browser sees the full /p/files prefix (no strip).
+    command: ["-b", "/p/files", "-r", "/srv"]
+    volumes:
+      # File Browser stores its database and config separately from /srv.
+      - ${FILEBROWSER_DATABASE_DIR:-../data/filebrowser/database}:/database
+      - ${FILEBROWSER_CONFIG_DIR:-../data/filebrowser/config}:/config
+      - ${FILEBROWSER_ROOT:-../data/share}:/srv
+    expose:
+      - "80"
+
+volumes:
+  backend_data:
+  portainer_data:

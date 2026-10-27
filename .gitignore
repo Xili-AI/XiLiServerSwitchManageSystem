@@ -1,0 +1,39 @@
+# Secrets and environment files
+.env
+*.backend.env
+!*.backend.env.sample
+debugmode
+legacy/
+
+# Runtime state
+data/
+logs/
+runtime/
+src/backend/data/
+src/backend/logs/
+src/backend/runtime/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local credentials
+credentials.txt
+

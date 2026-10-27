@@ -1,0 +1,54 @@
+@font-face {
+  font-family: 'Press Start 2P';
+  src: url('../assets/fonts/PressStart2P.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'VT323';
+  src: url('../assets/fonts/VT323.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --xl-blue: #3a6ed8;
+  --xl-blue-2: #5b9bd5;
+  --xl-cyan: #5fd3f3;
+  --xl-deep: #0b1b3a;
+  --xl-ink: #060b18;
+  --xl-glow: #4ea8ff;
+  --xl-violet: #7c5cff;
+  --xl-magenta: #ff4fd8;
+  --xl-lime: #8bffb0;
+  --xl-amber: #ffcc66;
+  --xl-red: #ff5f7e;
+
+  --bg: #050914;
+  --bg-2: #081226;
+  --bg-3: #0b1b3a;
+  --panel: rgba(9, 20, 42, 0.86);
+  --panel-strong: rgba(11, 27, 58, 0.96);
+  --line: rgba(95, 211, 243, 0.16);
+  --line-strong: rgba(95, 211, 243, 0.42);
+  --line-blue: rgba(58, 110, 216, 0.4);
+  --text: #d7e7ff;
+  --text-dim: #8fb3e8;
+  --text-muted: #5f7fb3;
+
+  --pixel: 'Press Start 2P', 'Silkscreen', 'Courier New', monospace;
+  --mono: 'VT323', 'Cascadia Code', Consolas, 'Courier New', monospace;
+  --body: 'Noto Sans SC', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+
+  --shadow-pixel: 0 6px 0 #03060d, 0 14px 34px rgba(0, 0, 0, 0.45);
+  --shadow-pixel-sm: 0 4px 0 #03060d, 0 8px 20px rgba(0, 0, 0, 0.32);
+  --radius: 10px;
+  --sidebar-width: 264px;
+  --sidebar-collapsed: 84px;
+  --header-height: 74px;
+
+  color-scheme: dark;
+}

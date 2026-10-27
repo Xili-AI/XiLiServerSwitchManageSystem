@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#050914" />
+    <meta
+      name="description"
+      content="矽励科技服务网关管理系统 — 单隧道、多服务的自托管服务网关与像素赛博控制台。"
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>矽励科技服务网关管理系统</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #050914;
+      }
+      #app {
+        min-height: 100vh;
+      }
+      .boot-screen {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        background:
+          radial-gradient(900px 500px at 50% 0%, rgba(58, 110, 216, 0.28), transparent 65%),
+          #050914;
+        color: #c9dcff;
+        font-family: "Cascadia Code", Consolas, monospace;
+      }
+      .boot-screen::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(0deg, rgba(95, 211, 243, 0.06) 0 1px, transparent 1px 44px),
+          repeating-linear-gradient(90deg, rgba(95, 211, 243, 0.06) 0 1px, transparent 1px 44px);
+        mask-image: radial-gradient(circle at 50% 45%, #000 0%, transparent 72%);
+      }
+      .boot-inner {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        padding: 24px;
+        text-align: center;
+      }
+      .boot-bot {
+        width: 108px;
+        height: 108px;
+        object-fit: contain;
+        image-rendering: pixelated;
+        animation: boot-float 4s ease-in-out infinite;
+        filter: drop-shadow(0 0 24px rgba(95, 211, 243, 0.35));
+      }
+      .boot-title {
+        font-size: 15px;
+        letter-spacing: 0.34em;
+        text-shadow: 0 0 18px rgba(95, 211, 243, 0.55);
+      }
+      .boot-bar {
+        width: min(320px, 60vw);
+        height: 10px;
+        padding: 2px;
+        border: 2px solid #1b3766;
+        background: #081226;
+        box-shadow: 0 4px 0 #03060d;
+      }
+      .boot-bar span {
+        display: block;
+        width: 38%;
+        height: 100%;
+        background: linear-gradient(90deg, #3a6ed8, #5fd3f3);
+        box-shadow: 0 0 12px rgba(95, 211, 243, 0.65);
+        animation: boot-load 1.4s ease-in-out infinite;
+      }
+      .boot-tip {
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        color: #5f7fb3;
+      }
+      @keyframes boot-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+      @keyframes boot-load {
+        0% {
+          transform: translateX(-20%);
+        }
+        50% {
+          transform: translateX(160%);
+        }
+        100% {
+          transform: translateX(-20%);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-bot,
+        .boot-bar span {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="boot-screen">
+        <div class="boot-inner">
+          <img class="boot-bot" src="/favicon.png" alt="XILI-AI" />
+          <div class="boot-title">XILI GATEWAY</div>
+          <div class="boot-bar"><span></span></div>
+          <div class="boot-tip">BOOTING SECURE CONSOLE...</div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
